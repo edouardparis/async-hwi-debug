@@ -26,11 +26,15 @@ pub mod command {
             hws.push(device.into());
         }
 
+        eprintln!("checked if specter simulator");
+
         if let Ok(devices) = Specter::enumerate().await {
             for device in devices {
                 hws.push(device.into());
             }
         }
+
+        eprintln!("checked if specter");
 
         match Jade::enumerate().await {
             Err(e) => println!("{:?}", e),
@@ -51,9 +55,13 @@ pub mod command {
             }
         }
 
+        eprintln!("checked if jade");
+
         if let Ok(device) = LedgerSimulator::try_connect().await {
             hws.push(device.into());
         }
+
+        eprintln!("checked if ledger simulator");
 
         let api = Box::new(HidApi::new().unwrap());
 
@@ -98,6 +106,8 @@ pub mod command {
             }
         }
 
+        eprintln!("checked if bitbox");
+
         for detected in Ledger::<TransportHID>::enumerate(&api) {
             if let Ok(mut device) = Ledger::<TransportHID>::connect(&api, detected) {
                 if let Some(ref wallet) = wallet {
@@ -121,6 +131,8 @@ pub mod command {
                 hws.push(device.into());
             }
         }
+
+        eprintln!("checked if ledger hid");
 
         Ok(hws)
     }
