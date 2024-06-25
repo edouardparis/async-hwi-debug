@@ -287,7 +287,6 @@ impl SerialTransport {
                 let res = ports
                     .into_iter()
                     .filter_map(|p| match p.port_type {
-                        SerialPortType::PciPort => Some(p.port_name),
                         SerialPortType::UsbPort(info) => {
                             eprintln!("found one serial, checking VID and PID");
                             if info.vid == SerialTransport::SPECTER_VID

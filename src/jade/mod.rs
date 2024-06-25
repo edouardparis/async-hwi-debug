@@ -446,7 +446,6 @@ impl SerialTransport {
             Ok(ports) => Ok(ports
                 .into_iter()
                 .filter_map(|p| match p.port_type {
-                    SerialPortType::PciPort => Some(p.port_name),
                     SerialPortType::UsbPort(info) => {
                         if JADE_DEVICE_IDS.contains(&(info.vid, info.pid)) {
                             eprintln!("found one jade");
