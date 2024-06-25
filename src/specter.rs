@@ -292,8 +292,10 @@ impl SerialTransport {
                         if info.vid == SerialTransport::SPECTER_VID
                             && info.pid == SerialTransport::SPECTER_PID
                         {
+                            eprintln!("its the good one");
                             Some(p.port_name)
                         } else {
+                            eprintln!("its not a specter");
                             None
                         }
                     }
