@@ -283,25 +283,29 @@ impl SerialTransport {
 
     pub fn enumerate_potential_ports() -> Result<Vec<String>, SpecterError> {
         match available_ports() {
-            Ok(ports) => Ok(ports
-                .into_iter()
-                .filter_map(|p| match p.port_type {
-                    SerialPortType::PciPort => Some(p.port_name),
-                    SerialPortType::UsbPort(info) => {
-                        eprintln!("found one serial, checking VID and PID");
-                        if info.vid == SerialTransport::SPECTER_VID
-                            && info.pid == SerialTransport::SPECTER_PID
-                        {
-                            eprintln!("its the good one");
-                            Some(p.port_name)
-                        } else {
-                            eprintln!("its not a specter");
-                            None
+            Ok(ports) => {
+                let res = ports
+                    .into_iter()
+                    .filter_map(|p| match p.port_type {
+                        SerialPortType::PciPort => Some(p.port_name),
+                        SerialPortType::UsbPort(info) => {
+                            eprintln!("found one serial, checking VID and PID");
+                            if info.vid == SerialTransport::SPECTER_VID
+                                && info.pid == SerialTransport::SPECTER_PID
+                            {
+                                eprintln!("its the good one");
+                                Some(p.port_name)
+                            } else {
+                                eprintln!("its not a specter");
+                                None
+                            }
                         }
-                    }
-                    _ => None,
-                })
-                .collect()),
+                        _ => None,
+                    })
+                    .collect();
+                eprintln!("results: {:?}", res);
+                Ok(res)
+            }
             Err(e) => Err(SpecterError::Device(format!(
                 "Error listing serial ports: {}",
                 e
