@@ -250,6 +250,7 @@ impl Specter<SerialTransport> {
         })
     }
     pub async fn enumerate() -> Result<Vec<Self>, SpecterError> {
+        eprintln!("enumerating specters serial");
         let mut res = Vec::new();
         for port_name in SerialTransport::enumerate_potential_ports()? {
             let specter = Specter::<SerialTransport>::new(port_name)?;
@@ -257,6 +258,7 @@ impl Specter<SerialTransport> {
                 res.push(specter);
             }
         }
+        eprintln!("done enumerating specters serial");
         Ok(res)
     }
 }

@@ -22,6 +22,34 @@ pub mod command {
     ) -> Result<Vec<Box<dyn HWI + Send>>, Box<dyn Error>> {
         let mut hws = Vec::new();
 
+        let api = Box::new(HidApi::new().unwrap());
+
+        for detected in Ledger::<TransportHID>::enumerate(&api) {
+            if let Ok(mut device) = Ledger::<TransportHID>::connect(&api, detected) {
+                if let Some(ref wallet) = wallet {
+                    let hmac = if let Some(s) = wallet.hmac {
+                        let mut h = [b'\0'; 32];
+                        h.copy_from_slice(&Vec::from_hex(s)?);
+                        Some(h)
+                    } else {
+                        None
+                    };
+                    device = device.with_wallet(
+                        wallet
+                            .name
+                            .ok_or::<Box<dyn Error>>("ledger requires a wallet name".into())?,
+                        wallet
+                            .policy
+                            .ok_or::<Box<dyn Error>>("ledger requires a wallet policy".into())?,
+                        hmac,
+                    )?;
+                }
+                hws.push(device.into());
+            }
+        }
+
+        eprintln!("checked if ledger hid");
+
         if let Ok(device) = SpecterSimulator::try_connect().await {
             hws.push(device.into());
         }
@@ -62,8 +90,6 @@ pub mod command {
         }
 
         eprintln!("checked if ledger simulator");
-
-        let api = Box::new(HidApi::new().unwrap());
 
         for device_info in api.device_list() {
             if async_hwi::bitbox::is_bitbox02(device_info) {
@@ -107,32 +133,6 @@ pub mod command {
         }
 
         eprintln!("checked if bitbox");
-
-        for detected in Ledger::<TransportHID>::enumerate(&api) {
-            if let Ok(mut device) = Ledger::<TransportHID>::connect(&api, detected) {
-                if let Some(ref wallet) = wallet {
-                    let hmac = if let Some(s) = wallet.hmac {
-                        let mut h = [b'\0'; 32];
-                        h.copy_from_slice(&Vec::from_hex(s)?);
-                        Some(h)
-                    } else {
-                        None
-                    };
-                    device = device.with_wallet(
-                        wallet
-                            .name
-                            .ok_or::<Box<dyn Error>>("ledger requires a wallet name".into())?,
-                        wallet
-                            .policy
-                            .ok_or::<Box<dyn Error>>("ledger requires a wallet policy".into())?,
-                        hmac,
-                    )?;
-                }
-                hws.push(device.into());
-            }
-        }
-
-        eprintln!("checked if ledger hid");
 
         Ok(hws)
     }
