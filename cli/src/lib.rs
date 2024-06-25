@@ -56,6 +56,14 @@ pub mod command {
 
         eprintln!("checked if specter simulator");
 
+        if let Ok(devices) = Specter::enumerate().await {
+            for device in devices {
+                hws.push(device.into());
+            }
+        }
+
+        eprintln!("checked if specter");
+
         match Jade::enumerate().await {
             Err(e) => println!("{:?}", e),
             Ok(devices) => {
@@ -76,14 +84,6 @@ pub mod command {
         }
 
         eprintln!("checked if jade");
-
-        if let Ok(devices) = Specter::enumerate().await {
-            for device in devices {
-                hws.push(device.into());
-            }
-        }
-
-        eprintln!("checked if specter");
 
         if let Ok(device) = LedgerSimulator::try_connect().await {
             hws.push(device.into());

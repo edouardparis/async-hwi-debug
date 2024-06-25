@@ -399,7 +399,9 @@ impl Jade<SerialTransport> {
         let mut res = Vec::new();
         for port_name in SerialTransport::enumerate_potential_ports()? {
             let jade = Jade::<SerialTransport>::new(SerialTransport::new(port_name)?);
+            eprintln!("ping the jade");
             jade.ping().await?;
+            eprintln!("received ping the jade");
             res.push(jade);
         }
         Ok(res)
