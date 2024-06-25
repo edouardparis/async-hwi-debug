@@ -436,6 +436,7 @@ impl SerialTransport {
         })
     }
     pub fn enumerate_potential_ports() -> Result<Vec<String>, JadeError> {
+        eprintln!("enumerate jade");
         match available_ports() {
             Ok(ports) => Ok(ports
                 .into_iter()
@@ -443,6 +444,7 @@ impl SerialTransport {
                     SerialPortType::PciPort => Some(p.port_name),
                     SerialPortType::UsbPort(info) => {
                         if JADE_DEVICE_IDS.contains(&(info.vid, info.pid)) {
+                            eprintln!("found one jade");
                             Some(p.port_name)
                         } else {
                             None
