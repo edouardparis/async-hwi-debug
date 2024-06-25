@@ -420,17 +420,20 @@ pub const JADE_DEVICE_IDS: [(u16, u16); 4] = [
 
 impl SerialTransport {
     pub fn new(port_name: String) -> Result<Self, TransportError> {
+        eprintln!("creating serial port with jade");
         let mut transport = tokio_serial::new(port_name, DEFAULT_JADE_BAUD_RATE)
             .open_native_async()
             .map_err(TransportError::from)?;
         // Ensure RTS and DTR are not set (as this can cause the hw to reboot)
         // according to https://github.com/Blockstream/Jade/blob/master/jadepy/jade_serial.py#L56
+        eprintln!("editing transport with jade");
         transport
             .write_request_to_send(false)
             .map_err(TransportError::from)?;
         transport
             .write_data_terminal_ready(false)
             .map_err(TransportError::from)?;
+        eprintln!("done with jade");
         Ok(Self {
             stream: Arc::new(Mutex::new(transport)),
         })
